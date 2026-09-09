@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ink Reader — Web</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main>
+  <header>
+    <div class="eyebrow">In-browser inference &middot; no server round trip</div>
+    <h1>Ink Reader</h1>
+    <p>Draw a single digit, 0 through 9. A small neural network — trained from scratch on MNIST and running entirely as JavaScript in this page — reads the stroke and predicts the number as you write.</p>
+  </header>
+
+  <div class="layout">
+    <section class="panel">
+      <h2>Draw here</h2>
+      <div class="canvas-wrap">
+        <span class="example-tag" id="exampleTag">example stroke</span>
+        <canvas id="pad" aria-label="Digit drawing pad"></canvas>
+      </div>
+      <div class="canvas-controls">
+        <span class="hint" id="hint">Draw over it to try your own</span>
+        <button id="clear" type="button">Clear</button>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Recognized as</h2>
+      <div class="result-top">
+        <div class="predicted-digit" id="predictedDigit">–</div>
+        <div class="confidence">confidence <strong id="confidenceValue">–</strong></div>
+      </div>
+      <div class="bars" id="bars"></div>
+    </section>
+  </div>
+
+  <footer>
+    Model: 784&nbsp;&rarr;&nbsp;128&nbsp;(ReLU)&nbsp;&rarr;&nbsp;10&nbsp;(softmax) &middot; trained for 15 epochs with plain NumPy, no ML framework &middot; <span class="stat">98.1%</span> accuracy on the MNIST test set &middot; weights fetched from <code>../weights.json</code>, forward pass runs client-side
+  </footer>
+</main>
+
+<script src="app.js"></script>
+</body>
+</html>
