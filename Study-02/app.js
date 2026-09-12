@@ -20,6 +20,42 @@ const PROGRESS_ELEMENT_IDS = {
   study: "progressStudy",
 };
 
+const CATEGORY_KEYWORDS = {
+  work: [
+    "회의", "미팅", "보고서", "보고", "프로젝트", "이메일", "메일",
+    "발표", "계약", "출근", "회사", "클라이언트", "고객", "기획",
+    "마감", "결재", "출장", "업무",
+  ],
+  personal: [
+    "병원", "약국", "쇼핑", "장보기", "가족", "친구", "운동", "청소",
+    "빨래", "은행", "생일", "여행", "식사", "저녁", "약속", "전화",
+  ],
+  study: [
+    "공부", "시험", "과제", "강의", "수업", "독서", "책", "자격증",
+    "스터디", "논문", "복습", "예습", "숙제", "학원",
+  ],
+};
+
+function suggestCategory(text) {
+  const normalized = text.trim();
+  if (!normalized) return null;
+
+  let bestCategory = null;
+  let bestScore = 0;
+
+  Object.entries(CATEGORY_KEYWORDS).forEach(([category, keywords]) => {
+    const score = keywords.filter((keyword) =>
+      normalized.includes(keyword)
+    ).length;
+    if (score > bestScore) {
+      bestScore = score;
+      bestCategory = category;
+    }
+  });
+
+  return bestCategory;
+}
+
 let todos = [];
 let editingId = null;
 let currentFilter = "all";
@@ -295,6 +331,39 @@ function setupFilterTabs() {
 function setupAddForm() {
   const form = document.getElementById("addForm");
   const input = document.getElementById("todoInput");
+  const categoryRadios = form.querySelectorAll('input[name="category"]');
+  const suggestionHint = document.getElementById("categorySuggestionHint");
+  const suggestionLabel = document.getElementById("suggestedCategoryLabel");
+  let categoryAutoLocked = false;
+
+  const hideSuggestionHint = () => {
+    suggestionHint.hidden = true;
+  };
+
+  categoryRadios.forEach((radio) => {
+    radio.addEventListener("click", () => {
+      categoryAutoLocked = true;
+      hideSuggestionHint();
+    });
+  });
+
+  input.addEventListener("input", () => {
+    if (categoryAutoLocked) return;
+
+    const suggested = suggestCategory(input.value);
+    if (!suggested) {
+      hideSuggestionHint();
+      return;
+    }
+
+    const target = form.querySelector(
+      `input[name="category"][value="${suggested}"]`
+    );
+    if (target) target.checked = true;
+
+    suggestionLabel.textContent = CATEGORY_LABELS[suggested];
+    suggestionHint.hidden = false;
+  });
 
   form.addEventListener("submit", (event) => {
     event.preventDefault();
@@ -310,6 +379,8 @@ function setupAddForm() {
     addTodo(text, category);
     input.value = "";
     input.focus();
+    categoryAutoLocked = false;
+    hideSuggestionHint();
   });
 }
 
